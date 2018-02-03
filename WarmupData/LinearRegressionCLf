@@ -1,0 +1,53 @@
+#!/usr/bin/env python2
+# -*- coding: utf-8 -*-
+"""
+Created on Sun Oct 22 01:55:29 2017
+
+@author: charith_gunuganti
+"""
+import numpy as np
+
+def readTrainingData( file):
+        train_file = open(file,'r')
+        trainMatrix =[]
+        for line in train_file:
+            lineMatrix = list(map(int, line.split(',')))
+            trainMatrix.append(lineMatrix)
+        return (np.array(trainMatrix[0]),np.array(trainMatrix[1:]))
+    
+    
+def readTestData(file):
+        train_file = open(file,'r')
+        trainMatrix =[]
+        for line in train_file:
+            lineMatrix = list(map(int, line.split(',')))
+            trainMatrix.append(lineMatrix)
+        return (np.array(trainMatrix[:]))
+
+
+
+Y_Matrix , X_Matrix = readTrainingData('trainDataXY.txt')
+Xtest_Matrix = readTestData('testDataX.txt')
+
+
+
+
+
+s=(5,45)
+y_indicator_matrix = np.zeros(s)
+
+for i in range(0,45):
+        y_indicator_matrix[Y_Matrix[i]-1,i] = 1;
+A_train = np.ones((1,45))    # N_train : number of training instance
+A_test = np.ones((1,5))      # N_test  : number of test instance
+Xtrain_padding = np.row_stack((X_Matrix,A_train))
+Xtest_padding = np.row_stack((Xtest_Matrix,A_test))
+
+Y=[1,4,5,2,3]
+
+'''computing the regression coefficients'''
+B_padding = np.dot(np.linalg.pinv(Xtrain_padding.T), y_indicator_matrix.T)   # (XX')^{-1} X  * Y'  #Ytrain : indicator matrix
+Ytest_padding = np.dot(B_padding.T,Xtest_padding)
+Ytest_padding_argmax = np.argmax(Ytest_padding,axis=0)+1
+err_test_padding = Y - Ytest_padding_argmax
+TestingAccuracy_padding = (1-np.nonzero(err_test_padding)[0].size/len(err_test_padding))*100
